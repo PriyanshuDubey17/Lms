@@ -31,7 +31,7 @@ const AddNewCourse = () => {
     newCourse.append("courseThumbnail", file);
 
     axios
-      .post("http://localhost:4002/api/v1/course/add-course", newCourse, {
+      .post("https://lms-p2i9.onrender.com/api/v1/course/add-course", newCourse, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

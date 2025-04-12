@@ -26,7 +26,7 @@ const Navigate= useNavigate()
      newUser.append("aboutMe",textArea);
      newUser.append("photo",profile);
 
-     axios.post("http://localhost:4002/api/v1/user/sign-up", newUser)
+     axios.post("https://lms-p2i9.onrender.com/api/v1/user/sign-up", newUser)
      
      .then((result)=>{
       setIsLoading(false)

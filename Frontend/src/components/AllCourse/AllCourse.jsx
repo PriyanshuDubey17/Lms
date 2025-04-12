@@ -96,7 +96,7 @@ const AllCourse = () => {
 
   const getAllCourse = () => {
     axios
-      .get("http://localhost:4002/api/v1/course/all-course", {
+      .get("https://lms-p2i9.onrender.com/api/v1/course/all-course", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

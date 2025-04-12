@@ -23,7 +23,7 @@ const Login = () => {
     };
 
     axios
-      .post("http://localhost:4002/api/v1/user/login", loginData)
+      .post("https://lms-p2i9.onrender.com/api/v1/user/login", loginData)
       .then((result) => {
         setIsLoading(false);
         toast(result.message);

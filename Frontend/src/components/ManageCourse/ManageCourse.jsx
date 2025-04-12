@@ -75,7 +75,7 @@ const ManageCourse = () => {
   }, []);
 
   const getAllVideo = () => {
-    axios.get("http://localhost:4002/api/v1/video/all-video/" + courseId, {
+    axios.get("https://lms-p2i9.onrender.com/api/v1/video/all-video/" + courseId, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
@@ -99,7 +99,7 @@ const ManageCourse = () => {
     videoData.append("videoCourseId", courseId);
 
     axios
-      .post("http://localhost:4002/api/v1/video/add-video", videoData, {
+      .post("https://lms-p2i9.onrender.com/api/v1/video/add-video", videoData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
