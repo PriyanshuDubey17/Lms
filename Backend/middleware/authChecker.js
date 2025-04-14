@@ -6,6 +6,7 @@ require("dotenv").config();
 // validate register user which are all ready our user to nhi
 const authRegister = async (req, res, next) => {
   try {
+    // console.log(req.body.aboutMe)
     const { fullName, email, phone, password, aboutMe } = req.body;
     if (!fullName || !email || !phone || !password || !aboutMe) {
       return next(new ApiError("missing filed", 500));
@@ -47,9 +48,9 @@ const authLogin = async (req, res, next) => {
     //console.log("isUserExit is not defined")
     const isUserExit = await User.findOne({ email: email, phone: phone });
     if (!isUserExit) {
-      return next(new ApiError("account Not Found .", 500));
+      return next(new ApiError("user not found .", 500));
     }
-    console.log("isUserExit is not defined 1");
+    // console.log("isUserExit is not defined 1");
 
     const verifyPassword = await bcrypt.compare(password, isUserExit.password);
     //console.log("isUserExit is not defined")
@@ -68,9 +69,10 @@ const authLogin = async (req, res, next) => {
 
 const tokenChecker = async (req, res, next) => {
   try {
+  
     //console.log(req.headers.authorization.split(" ")[1]);
     if (!req.headers.authorization) {
-      return next(new ApiError("token nhi hai bsdk", 500));
+      return next(new ApiError("token nhi hai", 500));
     }
 
     // token sath me laya hai user to hm check krenge mere hi app se bnaya gya user hai

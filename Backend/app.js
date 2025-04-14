@@ -1,12 +1,12 @@
 const express = require("express");
-const dbConnect= require("./db/db")
+const dbConnect = require("./db/db");
 const app = express();
-const userRouter = require("./routes/userRoutes") 
-const courseRouter= require("./routes/courseRoutes")
-const videoRouter= require("./routes/videoRoutes")
-const errorHandler =require("./middleware/errorHandler")
+const userRouter = require("./routes/userRoutes");
+const courseRouter = require("./routes/courseRoutes");
+const videoRouter = require("./routes/videoRoutes");
+const errorHandler = require("./middleware/errorHandler");
 const fileUpload = require("express-fileupload");
-const cors = require("cors")
+const cors = require("cors");
 
 // Allow all origins (development ke liye theek hai)
 app.use(cors());
@@ -19,20 +19,18 @@ app.use(cors());
 
 dbConnect();
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(
-    fileUpload({
-      useTempFiles: true,
-      tempFileDir: "/tmp/",
-    })
-  );
-app.use(express.json())
-app.use(express.urlencoded({extended:true}))
+  fileUpload({
+    useTempFiles: true,
+    tempFileDir: "/tmp/",
+  })
+);
 
+app.use("/api/v1/user", userRouter);
+app.use("/api/v1/course", courseRouter);
+app.use("/api/v1/video", videoRouter);
+app.use(errorHandler);
 
-app.use("/api/v1/user",userRouter);
-app.use("/api/v1/course",courseRouter);
-app.use("/api/v1/video",videoRouter);
-app.use(errorHandler)
-
-
-module.exports= app;
+module.exports = app;

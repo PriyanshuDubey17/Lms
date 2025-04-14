@@ -13,6 +13,7 @@ cloudinary.config({
 
 const signUp = async (req, res, next) => {
   try {
+    
     const { fullName, email, phone, password, aboutMe } = req.body;
 
     const uploadData = await cloudinary.uploader.upload(
@@ -31,7 +32,7 @@ const signUp = async (req, res, next) => {
     });
 
     const saveData = await newUser.save();
-    console.log(saveData);
+    // console.log(saveData);
     res
       .status(200)
       .json(new ApiResponse(200, "register successfully complete", saveData));
@@ -42,7 +43,7 @@ const signUp = async (req, res, next) => {
 
 const login = async (req, res, next) => {
   try {
-    console.log("isUserExit is not define3", req.isUserExit);
+    // console.log("isUserExit is not define3", req.isUserExit);
     const token = await jwt.sign(
       {
         userId: req.isUserExit._id,

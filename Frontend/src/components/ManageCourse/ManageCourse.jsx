@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const ManageCourse = () => {
   const [videoTitle, setVideoTitle] = useState("");
@@ -9,9 +10,12 @@ const ManageCourse = () => {
   const [videoThumbnail, setVideoThumbnail] = useState("");
   const [formShow, setFormShow] = useState(false);
   const [allVideoResponse, setAllVideoResponse] = useState([]);
+  const [pleaseWait, setPleaseWait] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
+  const Navigation = useNavigate();
   const { courseId } = useParams();
-  console.log("jjjjjjjjjj", location.state, "vvvvvvvv", courseId);
+  // console.log("jjjjjjjjjj", location.state, "vvvvvvvv", courseId);
   // const videoData = [
   //   {
   //     id: 1,
@@ -69,26 +73,29 @@ const ManageCourse = () => {
   //   },
   // ];
 
-  console.log("lllllllllllll",allVideoResponse)
   useEffect(() => {
     getAllVideo();
   }, []);
 
   const getAllVideo = () => {
-    axios.get("https://lms-p2i9.onrender.com/api/v1/video/all-video/" + courseId, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    })
-    .then((result)=>{
-      setAllVideoResponse(result.data.userData);
-    })
-    .catch((error)=>{
-      console.log(error)
-    })
+    axios
+      .get("https://lms-p2i9.onrender.com/api/v1/video/all-video/" + courseId, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then((result) => {
+        setAllVideoResponse(result.data.userData);
+        // toast(result.data.message)
+      })
+      .catch((error) => {
+        toast(error.response.data.message);
+        // console.log(error);
+      });
   };
 
   const submitHandler = (e) => {
+    setIsLoading(true);
     e.preventDefault();
     const videoData = new FormData();
 
@@ -105,96 +112,173 @@ const ManageCourse = () => {
         },
       })
       .then((result) => {
-        console.log(result);
-     
+        toast(result.data.message);
+        setIsLoading(false);
+        // console.log(result);
+        setFormShow(false);
+        getAllVideo();
       })
       .catch((error) => {
-        console.log(error);
+        setIsLoading(false);
+        toast(error.response.data.message);
+        // console.log(error);
+      });
+  };
+
+  const deleteHandler = (videoId) => {
+    setPleaseWait(true);
+    axios
+      .delete("https://lms-p2i9.onrender.com/api/v1/video/delete-video/" + videoId, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then((result) => {
+        setPleaseWait(false);
+
+        getAllVideo();
+
+        toast(result.data.message);
+
+        // console.log(result);
+      })
+      .catch((error) => {
+        // console.log(error);
+        toast(error.response.data.message);
+        setPleaseWait(false);
       });
   };
 
   return (
     <>
-      <div className="content-manage">
-        <div className="content-header">
-          <div className="m">
-            <h1>{location.state.courseName} </h1>
-            <button
-              className="upload"
-              onClick={() => {
-                setFormShow(true);
-              }}
-            >
-              Upload Content
-            </button>
+      {pleaseWait == true ? (
+        <div className="loader-container">
+          <div className="spinner"></div>
+        </div>
+      ) : (
+        <div className="content-manage">
+          <div className="content-header">
+            <div className="m">
+              <h1>{location.state.courseName} </h1>
+              <button
+                className="upload"
+                onClick={() => {
+                  setFormShow(!formShow);
+                }}
+              >
+                {formShow ? "Close" : "Upload Content"}
+              </button>
+            </div>
+            {formShow && (
+              <div className="upload-video-container">
+                <form onSubmit={submitHandler}>
+                  <input
+                    onChange={(e) => {
+                      setVideoTitle(e.target.value);
+                    }}
+                    type="text"
+                    placeholder="video tittle"
+                  />
+                  <label htmlFor="video"> Select Video</label>
+                  <input
+                    onChange={(e) => {
+                      setMainVideo(e.target.files[0]);
+                    }}
+                    type="file"
+                    id="video"
+                  />
+                  <label htmlFor="videoThumbnail">
+                    {" "}
+                    Select Video Thumbnail
+                  </label>
+                  <input
+                    onChange={(e) => {
+                      setVideoThumbnail(e.target.files[0]);
+                    }}
+                    type="file"
+                    id="videoThumbnail"
+                  />
+                  <textarea
+                    onChange={(e) => {
+                      setVideoDescription(e.target.value);
+                    }}
+                    placeholder="description"
+                  ></textarea>
+                  <button type="submit">
+                    {" "}
+                    {isLoading && <i class="fas fa-spinner fa-pulse"></i>}Submit
+                  </button>{" "}
+                  <button
+                    onClick={() => {
+                      setFormShow(false);
+                    }}
+                  >
+                    Close
+                  </button>
+                </form>
+              </div>
+            )}
           </div>
-          {formShow && (
-            <div className="upload-video-container">
-              <form onSubmit={submitHandler}>
-                <input
-                  onChange={(e) => {
-                    setVideoTitle(e.target.value);
-                  }}
-                  type="text"
-                  placeholder="video tittle"
-                />
-                <label htmlFor="video"> Select Video</label>
-                <input
-                  onChange={(e) => {
-                    setMainVideo(e.target.files[0]);
-                  }}
-                  type="file"
-                  id="video"
-                />
-                <label htmlFor="videoThumbnail"> Select Video Thumbnail</label>
-                <input
-                  onChange={(e) => {
-                    setVideoThumbnail(e.target.files[0]);
-                  }}
-                  type="file"
-                  id="videoThumbnail"
-                />
-                <textarea
-                  onChange={(e) => {
-                    setVideoDescription(e.target.value);
-                  }}
-                  placeholder="description"
-                ></textarea>
-                <button type="submit">Submit</button>{" "}
-                <button
-                  onClick={() => {
-                    setFormShow(false);
-                  }}
-                >
-                  Close
-                </button>
-              </form>
+
+          {allVideoResponse.length === 0 ? (
+            <div className="empty">
+              <p>Start Uploading Video Now</p>
+            </div>
+          ) : (
+            <div className="content-box">
+              {allVideoResponse.map((video) => {
+                // console.log("video ",video._id)
+                return (
+                  <div className="video-card" key={video._id}>
+                    <div className="video-img">
+                      <img
+                        src={video.videoThumbnailUrl}
+                        alt=""
+                        onClick={() => {
+                          Navigation("/dashboard/video-play", {
+                            state: { videoUrl: video.videoUrl },
+                          });
+                        }}
+                      />
+                    </div>
+
+                    <div className="video-title">
+                      <h3>{video.videoTittle}</h3>
+                      <h5> {video.videoDescription}</h5>
+                    </div>
+                    <div className="video-btn">
+                      {" "}
+                      <button
+                        className="edit-btn"
+                        onClick={() => {
+                          Navigation("/dashboard/edit-video", {
+                            state: {
+                              video: video,
+                              courseName: location.state.courseName,
+                            },
+                          });
+                        }}
+                      >
+                        {" "}
+                        Edit
+                      </button>
+                      <button
+                        className="delete-btn"
+                        onClick={() => {
+                          deleteHandler(video._id);
+                        }}
+                      >
+                        {" "}
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
-
-        <div className="content-box">
-          {allVideoResponse.map((video) => {
-            return (
-              <div className="video-card" key={video.id}>
-                <div className="video-img">
-                  <img src={video.videoThumbnailUrl} alt="" />
-                </div>
-
-                <div className="video-title">
-                  <h3>{video.videoTittle}</h3>
-                  <h5> {video.videoDescription}</h5>
-                </div>
-                <div className="video-btn">
-                  {" "}
-                  <button className="edit-btn"> Edit</button>
-                  <button className="delete-btn"> Delete</button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+      )}
     </>
   );
 };

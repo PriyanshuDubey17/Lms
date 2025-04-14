@@ -26,14 +26,14 @@ const Login = () => {
       .post("https://lms-p2i9.onrender.com/api/v1/user/login", loginData)
       .then((result) => {
         setIsLoading(false);
-        toast(result.message);
+        toast(result.data.message);
         console.log(result);
         const { fullName, token, profileImgUrl } = result.data.userData;
         console.log(fullName, token, profileImgUrl);
         localStorage.setItem("fullName", fullName);
         localStorage.setItem("token", token);
         localStorage.setItem("profileImgUrl", profileImgUrl);
-        Navigate("/dashboard/home");
+        Navigate("/dashboard/all-courses");
       })
       .catch((error) => {
         setIsLoading(false);

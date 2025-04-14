@@ -4,8 +4,8 @@ import { useLocation, useParams } from 'react-router-dom'
 const Profile = () => {
     const {profileId} = useParams();
     const location = useLocation();
-    console.log(location.state)
-    console.log(profileId)
+   // console.log(location.state)
+    //console.log(profileId)
   return (
     <>
     <div className='profile-wrapper'>

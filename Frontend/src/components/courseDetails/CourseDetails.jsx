@@ -1,14 +1,53 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-
+import { toast } from "react-toastify";
+import axios from "axios";
 const CourseDetails = () => {
+   const [isLoading, setIsLoading] = useState(false);
   const { id } = useParams(); //isme hi ohh id aayega
   const Navigation = useNavigate();
   const location = useLocation(); //ek componentsse dure compone se data aata hai isme
+  const {
+    courseName,
+    courseDescription,
+    coursePrice,
+    courseDiscount,
+    courseThumbnailUrl,
+  } = location.state;
+  // const courseName = location.state.courseName;
 
-  const courseName = location.state.courseName;
-  console.log(id, "kkkkkkkkkkkkkkkkkkkkk", courseName);
+  const deleteHandler = () => {
+    setIsLoading(true)
+    console.log("kkkkk")
+    axios
+      .delete("https://lms-p2i9.onrender.com/api/v1/course/delete-course/" + id, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then((result) => {
+        setIsLoading(false)
+        toast(result.data.message);
 
+        Navigation("/dashboard/all-courses")
+        console.log(result);
+      })
+      .catch((error) => {
+        setIsLoading(false)
+        console.log(error);
+        toast(error.response.data.message);
+      });
+  };
+
+  const editData = {
+    courseName: courseName,
+    courseDescription: courseDescription,
+    coursePrice: coursePrice,
+    courseDiscount: courseDiscount,
+    courseThumbnailUrl: courseThumbnailUrl,
+    courseId: id,
+  };
+  //  console.log(id, "kkkkkkkkkkkkkkkkkkkkk",  editData);
   const discountPercentage = parseFloat(location.state.courseDiscount); // "20%" => 20
   const discountedPrice =
     location.state.coursePrice -
@@ -22,7 +61,7 @@ const CourseDetails = () => {
             <div style={{ marginTop: "1rem" }}>
               <span style={{ color: "white" }}>{location.state.createdAt}</span>{" "}
               <span style={{ marginLeft: "3rem", color: "white" }}>
-                End At: 05/11/2024
+                End At: 05/11/2027
               </span>
             </div>
 
@@ -65,8 +104,19 @@ const CourseDetails = () => {
             </button>
           </div>
         </div>
-        <button className="edit">Edit</button>
-        <button className="delete">Delete</button>
+        <button
+          className="edit"
+          onClick={() => {
+            Navigation("/dashboard/course-edit", {
+              state: { courseEdit: editData },
+            });
+          }}
+        >
+          Edit
+        </button>
+        <button className="delete" onClick={deleteHandler}>
+        {isLoading && <i class="fas fa-spinner fa-pulse"></i>} Delete
+        </button>
         <button
           className="view"
           onClick={() => {

@@ -13,7 +13,10 @@ import StudentList from "./components/StudentList/StudentList";
 import Profile from "./components/Profile/Profile";
 import NotFound from "./NotFound";
 import { ToastContainer } from "react-toastify";
-import PrivateRoute from "./PrivateRoute"
+import PrivateRoute from "./PrivateRoute";
+import VideoPlayer from "./components/VideoPlayer/VideoPlayer";
+import EditVideo from "./components/EditVideo/EditVideo";
+
 const App = () => {
   const myRouter = createBrowserRouter([
     { path: "*", Component: NotFound },
@@ -22,16 +25,22 @@ const App = () => {
     { path: "/signup", Component: SignUp },
     {
       path: "/dashboard",
-      element: <PrivateRoute><Dashboard></Dashboard></PrivateRoute>,
+      element: (
+        <PrivateRoute>
+          <Dashboard></Dashboard>
+        </PrivateRoute>
+      ),
       children: [
-      
         { path: "home", element: <Home></Home> },
         { path: "all-courses", Component: AllCourse },
         { path: "add-new-course", Component: AddNewCourse },
-        { path: "course-detail/:id", Component: CourseDetails},
-        { path: "manage-course/:courseId", Component: ManageCourse},
-        { path: "student-list/:courseId", Component: StudentList},
-        { path: "student-profile/:profileId", Component: Profile}
+        { path: "course-detail/:id", Component: CourseDetails },
+        { path: "manage-course/:courseId", Component: ManageCourse },
+        { path: "student-list/:courseId", Component: StudentList },
+        { path: "student-profile/:profileId", Component: Profile },
+        { path: "video-play", Component: VideoPlayer },
+        { path: "course-edit", Component: AddNewCourse},
+        { path: "edit-video", Component: EditVideo},
       ],
     },
   ]);

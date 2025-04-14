@@ -1,10 +1,11 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const AllCourse = () => {
   const navigate = useNavigate();
+
   const [allCourseData, setAllCourseData] = useState([]);
   // const backendData = [
   //   {
@@ -89,7 +90,11 @@ const AllCourse = () => {
   //       "https://cdn.hashnode.com/res/hashnode/image/upload/v1675180430218/c3cc52ca-23e7-4373-8b8e-97355d07ece4.jpeg",
   //   },
   // ];
-  console.log(allCourseData, "hhh");
+  //console.log(allCourseData, "hhh");
+
+  const location = useLocation();
+  // console.log("courseEdit", location)
+
   useEffect(() => {
     getAllCourse();
   }, []);
@@ -99,7 +104,7 @@ const AllCourse = () => {
       .get("https://lms-p2i9.onrender.com/api/v1/course/all-course", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        },  
       })
       .then((result) => {
         setAllCourseData(result.data.userData);
@@ -107,61 +112,73 @@ const AllCourse = () => {
         console.log(result);
       })
       .catch((error) => {
-        toast(error.response.data.message);
+        // toast(error.response.data.message);
         console.log(error);
       });
   };
 
   return (
     <>
-      <div className="all-course-wrapper">
-        {allCourseData.map((oneByOneCourse) => {
-          // console.log(oneByOneCourse)
-          const discountPercentage = parseFloat(oneByOneCourse.courseDiscount); // "20%" => 20
-          const discountedPrice =
-            oneByOneCourse.coursePrice -
-            (oneByOneCourse.coursePrice * discountPercentage) / 100;
+      {allCourseData.length == 0 ? (
+        <div className="crete">
+          <h2>No course added yet</h2>
+          <p>Start by creating your first course.</p>
+          <button onClick={() => navigate("/dashboard/add-new-course")}>
+            Create Course Now
+          </button>
+        </div>
+      ) : (
+        <div className="all-course-wrapper">
+          {allCourseData.map((oneByOneCourse) => {
+            // console.log(oneByOneCourse)
+            const discountPercentage = parseFloat(
+              oneByOneCourse.courseDiscount
+            ); // "20%" => 20
+            const discountedPrice =
+              oneByOneCourse.coursePrice -
+              (oneByOneCourse.coursePrice * discountPercentage) / 100;
 
-          return (
-            <div
-              className="map-div"
-              key={oneByOneCourse._id}
-              onClick={() => {
-                navigate("/dashboard/course-detail/" + oneByOneCourse._id, {
-                  state: oneByOneCourse,
-                });
-              }}
-            >
-              <div className="map-img">
-                <img src={oneByOneCourse.courseThumbnailUrl} alt="" />
-              </div>
-              <div className="map-item">
-                <p>{oneByOneCourse.courseName}</p>
-                <p>
-                  <span
-                    style={{ textDecoration: "line-through", color: "gray" }}
-                  >
-                    Rs: {oneByOneCourse.coursePrice}
-                  </span>
-                  &nbsp;
-                  <span style={{ color: "green", fontWeight: "bold" }}>
-                    Rs: {discountedPrice.toFixed(0)}
-                  </span>
-                </p>
-                <p style={{ color: "red" }}>
-                  Discount: {oneByOneCourse.courseDiscount}%
-                </p>
-                {/* <p
+            return (
+              <div
+                className="map-div"
+                key={oneByOneCourse._id}
+                onClick={() => {
+                  navigate("/dashboard/course-detail/" + oneByOneCourse._id, {
+                    state: oneByOneCourse,
+                  });
+                }}
+              >
+                <div className="map-img">
+                  <img src={oneByOneCourse.courseThumbnailUrl} alt="" />
+                </div>
+                <div className="map-item">
+                  <p>{oneByOneCourse.courseName}</p>
+                  <p>
+                    <span
+                      style={{ textDecoration: "line-through", color: "gray" }}
+                    >
+                      Rs: {oneByOneCourse.coursePrice}
+                    </span>
+                    &nbsp;
+                    <span style={{ color: "green", fontWeight: "bold" }}>
+                      Rs: {discountedPrice.toFixed(0)}
+                    </span>
+                  </p>
+                  <p style={{ color: "red" }}>
+                    Discount: {oneByOneCourse.courseDiscount}%
+                  </p>
+                  {/* <p
                   dangerouslySetInnerHTML={{
                     __html: oneByOneCourse.courseDescription,
                   }}
                 ></p> */}
-                Click Know More About Course
+                  Click Know More About Course
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </>
   );
 };

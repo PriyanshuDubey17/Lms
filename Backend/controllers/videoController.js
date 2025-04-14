@@ -56,22 +56,118 @@ const addVideo = async (req, res, next) => {
   }
 };
 
-
 const getVideo = async (req, res, next) => {
-  
-  
-
   const allVideo = await VideoModel.find({
     videoCourseId: req.params.courseId,
     userId: req.tokenData.userId,
   });
 
-  console.log("hhhhhhhhhhhhhhhhhhhhhhhhhhhhh",req.tokenData)
-  if (allVideo.length == 0) {
-    return next(new ApiError("video empty", 500));
-  }
+  // console.log("hhhhhhhhhhhhhhhhhhhhhhhhhhhhh",req.tokenData)
+  // if (allVideo.length == 0) {
+  //   return next(new ApiError("video empty", 500));
+  // }
 
   res.status(200).json(new ApiResponse(200, "all video here ", allVideo));
 };
 
-module.exports = { addVideo, getVideo };
+const updateVideo = async (req, res, next) => {
+  try {
+    const userId = req.tokenData.userId;
+    const { videoTitle, videoDescription } = req.body;
+    const videoId = req.params.videoId;
+    console.log("hh", videoId, userId);
+
+    const findUser = await VideoModel.findOne({
+      _id: videoId,
+      userId: userId,
+    });
+
+    console.log("jjj", findUser);
+    if (!findUser) {
+      return next(new ApiError("video not found", 500));
+    }
+    console.log("jjj");
+    if (req.files) {
+      await cloudinary.uploader.destroy(findUser.videoThumbnailId);
+      const uploadVideoImg = await cloudinary.uploader.upload(
+        req.files.videoThumbnail.tempFilePath
+      );
+
+      const newVideoData = {
+        videoTittle: videoTitle,
+        videoDescription: videoDescription,
+        videoThumbnailUrl: uploadVideoImg.secure_url,
+        videoThumbnailId: uploadVideoImg.public_id,
+      };
+
+      const finalVideoData = await VideoModel.findOneAndUpdate(
+        { _id: videoId, userId: userId },
+        newVideoData,
+        { new: true }
+      );
+
+      res
+        .status(200)
+        .json(
+          new ApiResponse(200, "video update successfully", finalVideoData)
+        );
+    } else {
+      const newVideoData = {
+        videoTittle: videoTitle,
+        videoDescription: videoDescription,
+      };
+
+      const finalVideoData = await VideoModel.findOneAndUpdate(
+        { _id: videoId, userId: userId },
+        newVideoData,
+        { new: true }
+      );
+
+      res
+        .status(200)
+        .json(
+          new ApiResponse(200, "video update successfully", finalVideoData)
+        );
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+// delete video by video id
+
+const deleteVideo = async (req, res, next) => {
+  try {
+    console.log("hhhh");
+    const userId = req.tokenData.userId;
+    const videoId = req.params.videoId;
+    console.log("hh", videoId, userId);
+
+    const findUser = await VideoModel.findOne({
+      _id: videoId,
+      userId: userId,
+    });
+
+    if (!findUser) {
+      return next(new ApiError("video not found", 500));
+    }
+
+    await cloudinary.uploader.destroy(findUser.videoThumbnailId);
+    await cloudinary.uploader.destroy(findUser.videoId, {
+      resource_type: "video",
+    });
+
+    const deleteUser = await VideoModel.findOneAndDelete({
+      _id: videoId,
+      userId: userId,
+    });
+
+    res
+      .status(200)
+      .json(new ApiResponse(200, "video delete successful", deleteUser));
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { addVideo, getVideo, updateVideo, deleteVideo };
