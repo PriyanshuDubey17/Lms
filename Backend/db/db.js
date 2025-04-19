@@ -13,7 +13,7 @@ const dbConnect = async () => {
 
 module.exports = dbConnect;
 
-// mongoose.connect(process.env.MONGO_URL="mongodb+srv://priyanshu:priyanshu@firstdatabase.btnjfsn.mongodb.net/?retryWrites=true&w=majority&appName=firstDataBase/MyFirstDatabase"
+// mongoose.connect(process.env.MONGO_URL=
 // ).then(()=>{
 //     console.log("mongoose connect")
 // }).catch(()=>{
